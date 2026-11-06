@@ -1,0 +1,28 @@
+# Throwaway test for lanesync/lanesync#662: the guard step is copied verbatim from deploy-app-aws.yml;
+# only the allowed login is the test repo owner (vellaisibhi21-stack) instead of white803.
+name: Break glass guard test
+on:
+  workflow_dispatch:
+    inputs:
+      break_glass:
+        required: false
+        default: false
+        type: boolean
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Break glass is founder-only
+        if: ${{ inputs.break_glass && github.triggering_actor != 'vellaisibhi21-stack' }}
+        env:
+          TRIGGERING_ACTOR: ${{ github.triggering_actor }}
+        run: |
+          echo "::error title=break_glass is founder-only::${TRIGGERING_ACTOR} cannot skip the LaneSync check. Only white803 may run break_glass; deploy an approved release candidate instead."
+          exit 1
+      - name: Rest of gate
+        run: echo "gate passed (actor=${{ github.actor }} triggering_actor=${{ github.triggering_actor }} break_glass=${{ inputs.break_glass }})"
+  production-dummy:
+    needs: [gate]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "would deploy to production"
