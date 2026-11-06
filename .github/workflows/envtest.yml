@@ -1,0 +1,17 @@
+# Throwaway test for lanesync/lanesync#662: can a job read an environment-scoped secret?
+name: Env secret test
+on: workflow_dispatch
+jobs:
+  no-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          S: ${{ secrets.TEST_SECRET }}
+        run: 'if [ -n "$S" ]; then echo "secret visible (len ${#S})"; else echo "secret EMPTY"; fi'
+  with-production:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - env:
+          S: ${{ secrets.TEST_SECRET }}
+        run: 'if [ -n "$S" ]; then echo "secret visible (len ${#S})"; else echo "secret EMPTY"; fi'
